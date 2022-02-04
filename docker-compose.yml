@@ -1,0 +1,64 @@
+version: '3'
+services:
+
+    #PHP Service
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: bash -c 'composer install --no-interaction && chown -R www-data:www-data vendor/ storage/ bootstrap/ && php-fpm'
+        image: boosteroid_app
+        container_name: boosteroid_app
+        restart: unless-stopped
+        environment:
+            DB_USERNAME:    ${DB_USERNAME}
+            DB_PASSWORD:    ${DB_PASSWORD}
+            DB_DATABASE:    ${DB_DATABASE}
+            APP_ENV:        ${APP_ENV}
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - boosteroid-network
+
+    #Nginx Service
+    nginx:
+        image: nginx:alpine
+        container_name: boosteroid_nginx
+        restart: unless-stopped
+        ports:
+            - 8080:8080
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        #depends_on:
+        #    - app
+        networks:
+            - boosteroid-network
+
+
+    #DB Service
+    db:
+        image: postgres
+        container_name: boosteroid_db
+        restart: always
+        networks:
+            - boosteroid-network
+        environment:
+            POSTGRES_USER: ${DB_USERNAME}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_DATABASE}
+        volumes:
+            - dbdata:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+
+volumes:
+    dbdata:
+        driver: local
+
+#Docker Networks
+networks:
+    boosteroid-network:
+        driver: bridge
