@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class SongRepository
@@ -11,6 +13,30 @@ class SongRepository
     public function __construct(string $model_namespace)
     {
         $this->model = $model_namespace;
+    }
+
+    /**
+     * Returns collection of items.
+     * @param int $per_page     If per_page = -1 all matched rows will be returned.
+     * @param string $order
+     * @param string $direction
+     * @return mixed
+     */
+    public function list(int $per_page = -1, string $order = 'id', string $direction = 'asc'): Collection
+    {
+        return $this->paginatedList($per_page, $order, $direction)->all();
+    }
+
+    /**
+     * @param int $per_page     If per_page = -1 all matched rows will be returned.
+     * @param string $order
+     * @param string $direction
+     * @return mixed
+     */
+    public function paginatedList(int $per_page = -1, string $order = 'id', string $direction = 'asc'): LengthAwarePaginator
+    {
+        return $this->model::orderBy($order, $direction)
+            ->paginate($per_page);
     }
 
     /**

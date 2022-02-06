@@ -85,4 +85,45 @@ class SongControllerTest extends TestCase
                 'errors' => ['duration'],
             ]);
     }
+
+    public function testThatSongsListCanBeReturned()
+    {
+        $song1 = Song::factory()->create();
+        $song2 = Song::factory()->create();
+
+        $this->getJson(route('songs-list'))
+            ->assertStatus(Response::HTTP_OK)
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment([
+                'id'            => $song1->id,
+                'name'          => $song1->name,
+                'email'         => $song1->email,
+                'duration'      => $song1->duration,
+                'total_duration' => $song1->total_duration,
+                'created_at'    => $song1->created_at,
+            ])
+            ->assertJsonFragment([
+                'id'            => $song2->id,
+                'name'          => $song2->name,
+                'email'         => $song2->email,
+                'duration'      => $song2->duration,
+                'total_duration' => $song2->total_duration,
+                'created_at'    => $song2->created_at,
+            ]);
+    }
+
+    public function testSongsListPagination()
+    {
+        Song::factory()->count(10)->create();
+        $notInResponse = Song::factory()->create();
+
+        $per_page = 10;
+        $this->getJson(route('songs-list', ['per_page' => $per_page]))
+            ->assertJsonCount($per_page, 'data')
+            ->assertJsonMissing([
+                'id' => $notInResponse->id,
+            ]);
+    }
+
+    //TODO: test list order_by fields, test list order_direction fields
 }

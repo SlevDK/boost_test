@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateSongEntryRequest;
+use App\Http\Requests\SongListRequest;
 use App\Http\Resources\SongResource;
+use App\Http\Resources\SongResourceCollection;
 use App\Repositories\SongRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -20,6 +22,17 @@ class SongController extends Controller
          * and help in our future refactoring.
          */
         $this->repo = $repo;
+    }
+
+    public function index(SongListRequest $request)
+    {
+        $per_page = (int) $request->input('per_page', 50);
+        $order = $request->input('order_by', 'id');
+        $direction = $request->input('order_direction', 'asc');
+
+        $songs = $this->repo->paginatedList($per_page, $order, $direction);
+
+        return response()->json(new SongResourceCollection($songs), Response::HTTP_OK);
     }
 
     /**

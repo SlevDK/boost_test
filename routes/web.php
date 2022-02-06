@@ -21,3 +21,4 @@ Route::get('/', function () {
 
 // Bad route naming, but we want easy to test approach
 Route::get('/songs-create', [SongController::class, 'create'])->name('create-song-entry');
+Route::get('/songs', [SongController::class, 'index'])->name('songs-list');
