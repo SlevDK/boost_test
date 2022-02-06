@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SongController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Bad route naming, but we want an easy-to-test approach
+Route::get('/songs-create', [SongController::class, 'create'])->name('create-song-entry');
+Route::get('/songs', [SongController::class, 'index'])->name('songs-list');
