@@ -6,6 +6,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class SongResourceCollection extends ResourceCollection
 {
+    public $collects = SongResource::class;
+    protected $preserveAllQueryParameters = true;
     /**
      * Transform the resource collection into an array.
      *
@@ -14,8 +16,7 @@ class SongResourceCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return [
-            'data' => $this->collection,
-        ];
+        // Preserve pagination data
+        return $this->resource;
     }
 }
