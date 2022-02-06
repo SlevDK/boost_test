@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SongController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +16,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(route('users'));
 });
+
+Route::get('/users', function () {
+    return view('welcome');
+})->name('users');

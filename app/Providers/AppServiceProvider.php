@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Song;
+use App\Repositories\SongRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        $this->app->singleton(SongRepository::class, function() {
+            return new SongRepository(Song::class);
+        });
     }
 }
