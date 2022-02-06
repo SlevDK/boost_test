@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SongController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Bad route naming, but we want easy to test approach
+Route::get('/songs-create', [SongController::class, 'create'])->name('create-song-entry');
