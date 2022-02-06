@@ -30,7 +30,14 @@ class SongController extends Controller
         $order = $request->input('order_by', 'id');
         $direction = $request->input('order_direction', 'asc');
 
-        $songs = $this->repo->paginatedList($per_page, $order, $direction);
+        $filters = [];
+        if ($request->has('total_duration') && $request->has('total_duration_condition')) {
+            $total_d = (int) $request->input('total_duration');
+            $total_d_cond = $request->input('total_duration_condition');
+            $filters[] = ['total_duration', $total_d_cond, $total_d];
+        }
+
+        $songs = $this->repo->paginatedList($filters, $per_page, $order, $direction);
 
         return response()->json(new SongResourceCollection($songs), Response::HTTP_OK);
     }

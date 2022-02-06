@@ -22,8 +22,11 @@ class SongListRequest extends ApiRequest
     public function rules()
     {
         return [
-            'order_by' => 'string|in:created_at,email,duration',
-            'order_direction' => 'string|in:asc,ASC,desc,DESC',
+            'total_duration'    => 'integer|min:0',
+            'total_duration_condition'  => 'string|in:<,>,=,<=,>=',
+
+            'order_by'          => 'string|in:created_at,email,duration',
+            'order_direction'   => 'string|in:asc,ASC,desc,DESC',
         ];
     }
 }

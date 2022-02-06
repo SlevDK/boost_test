@@ -126,4 +126,51 @@ class SongControllerTest extends TestCase
     }
 
     //TODO: test list order_by fields, test list order_direction fields
+
+    public function testThatListCanBeFilteredByTotalDuration()
+    {
+        $td1 = 100;
+        $song1 = Song::factory()->create([
+            'total_duration' => $td1,
+        ]);
+
+        $td2 = 200;
+        $song2 = Song::factory()->create([
+            'total_duration' => $td2,
+        ]);
+
+        $this->getJson(route('songs-list', ['total_duration' => 200, 'total_duration_condition' => '<']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'id' => $song1->id,
+                'total_duration' => $td1,
+            ])
+            ->assertJsonMissing([
+                'id' => $song2->id,
+                'total_duration' => $td2,
+            ]);
+
+        $this->getJson(route('songs-list', ['total_duration' => 100, 'total_duration_condition' => '>']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'id' => $song2->id,
+                'total_duration' => $td2,
+            ])
+            ->assertJsonMissing([
+                'id' => $song1->id,
+                'total_duration' => $td1,
+            ]);
+
+        $td3 = 300;
+        $song3 = Song::factory()->create([
+            'total_duration' => $td3,
+        ]);
+
+        $this->getJson(route('songs-list', ['total_duration' => 300, 'total_duration_condition' => '=']))
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'id' => $song3->id,
+                'total_duration' => $td3,
+            ]);
+    }
 }

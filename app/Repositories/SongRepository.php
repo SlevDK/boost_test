@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,21 +23,26 @@ class SongRepository
      * @param string $direction
      * @return mixed
      */
-    public function list(int $per_page = -1, string $order = 'id', string $direction = 'asc'): Collection
+    public function list(array $filters = [], int $per_page = -1, string $order = 'id', string $direction = 'asc'): Collection
     {
-        return $this->paginatedList($per_page, $order, $direction)->all();
+        return $this->paginatedList([], $per_page, $order, $direction)->all();
     }
 
     /**
-     * @param int $per_page     If per_page = -1 all matched rows will be returned.
+     * @param array $filters
+     * @param int $per_page If per_page = -1 all matched rows will be returned.
      * @param string $order
      * @param string $direction
      * @return mixed
      */
-    public function paginatedList(int $per_page = -1, string $order = 'id', string $direction = 'asc'): LengthAwarePaginator
-    {
-        return $this->model::orderBy($order, $direction)
-            ->paginate($per_page);
+    public function paginatedList(
+        array $filters = [], int $per_page = -1, string $order = 'id', string $direction = 'asc'
+    ): LengthAwarePaginator {
+
+        /* $q->where('field', '<', value)->where(... */
+        $q = $this->applyFilters($this->model::query(), $filters);
+
+        return $q->orderBy($order, $direction)->paginate($per_page);
     }
 
     /**
@@ -68,6 +74,28 @@ class SongRepository
             'duration'  => $attr['duration'],
             'total_duration' => $lastEntry->total_duration + $attr['duration'],
         ]);
+    }
+
+    /**
+     * We can process filters as array of arrays with params, instead of writing
+     * different methods, like findByDuration(), findByEmail(), findBy...(), etc.
+     *
+     * Current solution not good enough. If we want to be able to apply filters like this,
+     * it will be better make some abstract QueryParamBag class,
+     * that can collect and validate params pairs and use as Iterable here.
+     *
+     * @param Builder $q
+     * @param array $filters [['field1', '<', 12], ['field2', '=', 'abc']], etc.
+     * @return Builder
+     */
+    protected function applyFilters(Builder $q, array $filters): Builder {
+
+        //TODO: add filter params validation, rewrite current solution
+        foreach ($filters as $filter) {
+            $q->where($filter[0], $filter[1], $filter[2]);
+        }
+
+        return $q;
     }
 
     /**
