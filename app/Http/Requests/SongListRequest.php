@@ -25,7 +25,7 @@ class SongListRequest extends ApiRequest
             'total_duration'    => 'integer|min:0',
             'total_duration_condition'  => 'string|in:<,>,=,<=,>=',
 
-            'order_by'          => 'string|in:created_at,email,duration',
+            'order_by'          => 'string|in:id,name,email,duration,created_at',
             'order_direction'   => 'string|in:asc,ASC,desc,DESC',
         ];
     }
